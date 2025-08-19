@@ -1,5 +1,5 @@
 {
-  "name": "green-smart-home",
+  "name": "social",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -36,9 +36,8 @@
     "vite": "^5.4.19"
   },
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "test": "echo \"Write tests!\" && exit 0"
+    "dev": "vite --config vite.config.ts",
+    "build": "vite build --config vite.config.ts",
+    "preview": "vite preview --config vite.config.ts"
   }
 }
