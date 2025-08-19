@@ -8,7 +8,13 @@ import { createClient } from "@supabase/supabase-js";
 dotenv.config();
 
 const app = express();
-app.use(cors({ origin: process.env.FRONTEND_URL || "http://localhost:5173" }));
+app.use(cors({
+    origin: [
+        "http://localhost:5173",
+        "https://social-dusky-one.vercel.app"  // add your actual Vercel URL here
+    ]
+}));
+
 app.use(express.json());
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
