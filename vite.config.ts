@@ -6,7 +6,7 @@ export default defineConfig({
   root: '.', // frontend folder if set as root in Vercel
   base: './', // ensures assets load correctly on Vercel
   build: {
-    outDir: 'dist', // relative to root
+    outDir: 'dist',
     emptyOutDir: true,
   },
 });
