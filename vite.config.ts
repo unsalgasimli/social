@@ -1,12 +1,12 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
-  root: '.', // if vite.config.ts is in the same folder as index.html
+  root: '.', // frontend folder if set as root in Vercel
+  base: './', // ensures assets load correctly on Vercel
   build: {
-    outDir: 'dist', // relative to frontend
+    outDir: 'dist', // relative to root
     emptyOutDir: true,
-  }
+  },
 });
