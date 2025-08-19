@@ -8,44 +8,67 @@ import { createClient } from "@supabase/supabase-js";
 dotenv.config();
 
 const app = express();
-app.use(cors({
-    origin: [
-        "http://localhost:5173",
-        "https://social-dusky-one.vercel.app"  // add your actual Vercel URL here
-    ]
-}));
 
+// Allow requests from frontend
+app.use(cors({ origin: process.env.FRONTEND_URL }));
 app.use(express.json());
 
+// Initialize Supabase
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
+// REGISTER
 app.post("/api/auth/register", async (req, res) => {
     try {
         const { name, surname, email, phone, age, gender, password } = req.body;
-        const { data: existingUser } = await supabase.from("users").select("id").eq("email", email).maybeSingle();
+
+        const { data: existingUser } = await supabase
+            .from("users")
+            .select("id")
+            .eq("email", email)
+            .maybeSingle();
+
         if (existingUser) return res.status(400).json({ error: "Email already exists" });
+
         const hashedPassword = await bcrypt.hash(password, 10);
-        const { data, error } = await supabase.from("users").insert([{ name, surname, email, phone, age, gender, password: hashedPassword }]).select("id, email").single();
+
+        const { data, error } = await supabase
+            .from("users")
+            .insert([{ name, surname, email, phone, age, gender, password: hashedPassword }])
+            .select("id, email")
+            .single();
+
         if (error) throw error;
+
         const token = jwt.sign({ id: data.id, email: data.email }, process.env.JWT_SECRET, { expiresIn: "7d" });
+
         res.status(201).json({ message: "User created", user: data, token });
-    } catch (error) {
-        console.error(error);
+    } catch (err) {
+        console.error(err);
         res.status(500).json({ error: "Registration failed" });
     }
 });
 
+// LOGIN
 app.post("/api/auth/login", async (req, res) => {
     try {
         const { email, password } = req.body;
-        const { data: user, error } = await supabase.from("users").select("*").eq("email", email).single();
+
+        const { data: user, error } = await supabase
+            .from("users")
+            .select("*")
+            .eq("email", email)
+            .single();
+
         if (error || !user) return res.status(400).json({ error: "User not found" });
+
         const isValid = await bcrypt.compare(password, user.password);
         if (!isValid) return res.status(400).json({ error: "Invalid password" });
+
         const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "7d" });
+
         res.json({ message: "Logged in", user, token });
-    } catch (error) {
-        console.error(error);
+    } catch (err) {
+        console.error(err);
         res.status(500).json({ error: "Login failed" });
     }
 });
