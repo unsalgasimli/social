@@ -1,113 +1,74 @@
-    import express from "express";
-    import cors from "cors";
-    import dotenv from "dotenv";
-    import bcrypt from "bcrypt";
-    import jwt from "jsonwebtoken";
-    import { createClient } from "@supabase/supabase-js";
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import { createClient } from "@supabase/supabase-js";
 
-    // ✅ Load environment variables before anything else
-    dotenv.config();
+dotenv.config();
 
-    const app = express();
-    app.use(cors({ origin: "http://localhost:5173" })); // adjust if frontend uses another port
-    app.use(express.json());
+const app = express();
 
-    // ✅ Initialize Supabase client
-    const supabase = createClient(
-        process.env.SUPABASE_URL,
-        process.env.SUPABASE_KEY
-    );
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
+app.use(cors({ origin: FRONTEND_URL }));
+app.use(express.json());
 
-    // ======================= REGISTER =======================
-    app.post("/api/auth/register", async (req, res) => {
-        try {
-            const { name, surname, email, phone, age, gender, password } = req.body;
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
-            // check if email already exists
-            const { data: existingUser } = await supabase
-                .from("users")
-                .select("id")
-                .eq("email", email)
-                .maybeSingle();
+app.post("/api/auth/register", async (req, res) => {
+    try {
+        const { name, surname, email, phone, age, gender, password } = req.body;
 
-            if (existingUser) {
-                return res.status(400).json({ error: "Email artıq istifadə olunur" });
-            }
+        const { data: existingUser } = await supabase
+            .from("users")
+            .select("id")
+            .eq("email", email)
+            .maybeSingle();
 
-            // hash password
-            const hashedPassword = await bcrypt.hash(password, 10);
+        if (existingUser) return res.status(400).json({ error: "Email artıq istifadə olunur" });
 
-            // insert new user
-            const { data, error } = await supabase
-                .from("users")
-                .insert([
-                    { name, surname, email, phone, age, gender, password: hashedPassword },
-                ])
-                .select("id, email") // return new user’s id & email
-                .single();
+        const hashedPassword = await bcrypt.hash(password, 10);
 
-            if (error) throw error;
+        const { data, error } = await supabase
+            .from("users")
+            .insert([{ name, surname, email, phone, age, gender, password: hashedPassword }])
+            .select("id, email")
+            .single();
 
-            // generate JWT
-            const token = jwt.sign(
-                { id: data.id, email: data.email },
-                process.env.JWT_SECRET,
-                { expiresIn: "7d" }
-            );
+        if (error) throw error;
 
-            res.status(201).json({
-                message: "Qeydiyyat uğurlu oldu ✅",
-                user: { id: data.id, email: data.email },
-                token,
-            });
-        } catch (error) {
-            console.error("❌ Error during registration:", error.message);
-            res.status(500).json({ error: "Qeydiyyat uğursuz oldu" });
-        }
-    });
+        const token = jwt.sign({ id: data.id, email: data.email }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
-    // ======================= LOGIN =======================
-    app.post("/api/auth/login", async (req, res) => {
-        try {
-            const { email, password } = req.body;
+        res.status(201).json({ message: "Qeydiyyat uğurlu oldu ✅", user: { id: data.id, email: data.email }, token });
+    } catch (error: any) {
+        console.error(error.message);
+        res.status(500).json({ error: "Qeydiyyat uğursuz oldu" });
+    }
+});
 
-            // get user by email
-            const { data: user, error } = await supabase
-                .from("users")
-                .select("*")
-                .eq("email", email)
-                .single();
+app.post("/api/auth/login", async (req, res) => {
+    try {
+        const { email, password } = req.body;
 
-            if (error || !user) {
-                return res.status(400).json({ error: "İstifadəçi tapılmadı" });
-            }
+        const { data: user, error } = await supabase
+            .from("users")
+            .select("*")
+            .eq("email", email)
+            .single();
 
-            // compare password
-            const isValid = await bcrypt.compare(password, user.password);
-            if (!isValid) {
-                return res.status(400).json({ error: "Şifrə yanlışdır" });
-            }
+        if (error || !user) return res.status(400).json({ error: "İstifadəçi tapılmadı" });
 
-            // sign JWT
-            const token = jwt.sign(
-                { id: user.id, email: user.email },
-                process.env.JWT_SECRET,
-                { expiresIn: "7d" }
-            );
+        const isValid = await bcrypt.compare(password, user.password);
+        if (!isValid) return res.status(400).json({ error: "Şifrə yanlışdır" });
 
-            res.json({
-                message: "Daxil oldunuz ✅",
-                user: { id: user.id, email: user.email, name: user.name },
-                token,
-            });
-        } catch (error) {
-            console.error("❌ Error during login:", error.message);
-            res.status(500).json({ error: "Daxil olma uğursuz oldu" });
-        }
-    });
+        const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
-    // ======================= START SERVER =======================
-    const PORT = process.env.PORT || 5000;
-    app.listen(PORT, () =>
-        console.log(`✅ Backend http://localhost:${PORT} ünvanında işə düşdü`)
-    );
+        res.json({ message: "Daxil oldunuz ✅", user: { id: user.id, email: user.email, name: user.name }, token });
+    } catch (error: any) {
+        console.error(error.message);
+        res.status(500).json({ error: "Daxil olma uğursuz oldu" });
+    }
+});
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`✅ Backend listening on port ${PORT}`));
