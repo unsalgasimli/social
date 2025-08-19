@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
   root: '.', // if vite.config.ts is in the same folder as index.html
   build: {
-    outDir: path.resolve(__dirname, '../dist'),
+    outDir: 'dist', // relative to frontend
     emptyOutDir: true,
-  },
+  }
 });
