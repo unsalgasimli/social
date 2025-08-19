@@ -46,7 +46,7 @@
     "test": "echo \"Write tests!\" && exit 0"
   },
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "keywords": [],
   "author": "",
   "license": "ISC",
