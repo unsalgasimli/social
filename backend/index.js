@@ -40,7 +40,7 @@ app.post("/api/auth/register", async (req, res) => {
         const token = jwt.sign({ id: data.id, email: data.email }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
         res.status(201).json({ message: "Qeydiyyat uğurlu oldu ✅", user: { id: data.id, email: data.email }, token });
-    } catch (error: any) {
+    } catch (error) {
         console.error(error.message);
         res.status(500).json({ error: "Qeydiyyat uğursuz oldu" });
     }
@@ -64,7 +64,7 @@ app.post("/api/auth/login", async (req, res) => {
         const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
         res.json({ message: "Daxil oldunuz ✅", user: { id: user.id, email: user.email, name: user.name }, token });
-    } catch (error: any) {
+    } catch (error) {
         console.error(error.message);
         res.status(500).json({ error: "Daxil olma uğursuz oldu" });
     }
