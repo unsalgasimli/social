@@ -4,8 +4,9 @@ import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
+  root: 'frontend', // where index.html lives
   build: {
-    outDir: path.resolve(__dirname, 'dist'),
+    outDir: path.resolve(__dirname, 'dist'), // output to project root /dist
     emptyOutDir: true,
   },
 });
