@@ -9,9 +9,23 @@ dotenv.config();
 
 const app = express();
 
-// Allow requests from frontend
-app.use(cors({ origin: process.env.FRONTEND_URL }));
-app.use(express.json());
+const allowedOrigins = [
+    process.env.FRONTEND_URL,        // your Vercel frontend
+    "http://localhost:5173"          // local frontend
+];
+
+app.use(cors({
+    origin: (origin, callback) => {
+        // allow requests with no origin (like curl or Postman)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error("Not allowed by CORS"));
+        }
+    }
+}));
+
 
 // Initialize Supabase
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
