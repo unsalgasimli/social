@@ -3,8 +3,8 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
-  root: '.', // frontend folder if set as root in Vercel
-  base: './', // ensures assets load correctly on Vercel
+  root: '.',
+  base: './',
   build: {
     outDir: 'dist',
     emptyOutDir: true,
