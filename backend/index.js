@@ -10,7 +10,8 @@ dotenv.config();
 const app = express();
 
 const FRONTEND_URL = process.env.FRONTEND_URL || "https://social-dusky-one.vercel.app/";
-app.use(cors({ origin: FRONTEND_URL }));
+app.use(cors());
+//app.use(cors({ origin: FRONTEND_URL }));
 app.use(express.json());
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
