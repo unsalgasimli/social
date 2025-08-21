@@ -9,19 +9,32 @@ dotenv.config();
 
 const app = express();
 
-// ===== Middleware =====
 
-// Parse JSON bodies (must be before routes)
 app.use(express.json());
 
-// Enable CORS
+
+const allowedOrigins = [
+    "http://localhost:5173",
+    "https://social-dusky-one.vercel.app"
+];
+
 app.use(cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    origin: (origin, callback) => {
+
+        if (!origin) return callback(null, true);
+
+        if (allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error("CORS not allowed for this origin: " + origin));
+        }
+    },
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true
 }));
 
-// Optional: log requests and bodies for debugging
+
+
 app.use((req, res, next) => {
     console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
     console.log("Body:", req.body);
