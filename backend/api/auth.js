@@ -1,10 +1,10 @@
 import express from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { supabase } from "../../frontend/src/lib/supabaseClient";
+import { supabase } from "../lib/supabaseClient.js";
 
 const router = express.Router();
-const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey"; // production-da mütləq .env istifadə et
+const JWT_SECRET = process.env.JWT_SECRET
 
 // REGISTER
 router.post("/register", async (req, res) => {
