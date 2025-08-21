@@ -17,8 +17,7 @@
       "dest": "/backend/api/$1"
     },
     {
-      "src": "/(.*).(js|css|png|jpg|svg|ico|json|map|woff2?)",
-      "dest": "/frontend/dist/$1.$2"
+      "handle": "filesystem"
     },
     {
       "src": "/(.*)",
