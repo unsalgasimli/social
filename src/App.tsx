@@ -4,7 +4,7 @@ import { Footer } from './components/Footer';
 import MainPage from './pages/MainPage';
 import LoginPage from "./pages/LoginPage.tsx";
 import RegisterPage from "./pages/RegisterPage.tsx";
-import ProfilePage from "./pages/ProfilePage.tsx";
+import ProfileInfoPage from "./pages/ProfileInfoPage.tsx";
 
 function App() {
     return (
@@ -14,7 +14,7 @@ function App() {
                 <Route path="/" element={<MainPage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
-                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/profileInfo" element={<ProfileInfoPage />} />
             </Routes>
             <Footer />
         </BrowserRouter>

@@ -157,7 +157,7 @@ export function Navbar() {
                                             <FiUser />
                                             Profil
                                         </Link>
-                                        <Link to="/settings" role="menuitem" className="flex items-center gap-3 px-4 py-3 hover:bg-[#31363F] transition text-sm" style={{ color: palette.text }}>
+                                        <Link to="/profileInfo" role="menuitem" className="flex items-center gap-3 px-4 py-3 hover:bg-[#31363F] transition text-sm" style={{ color: palette.text }}>
                                             <FiSettings />
                                             Tənzimləmələr
                                         </Link>
