@@ -39,44 +39,38 @@ export default function ProfileInfoPage() {
 
     async function fetchProfile() {
         setLoading(true);
-
-        // Users məlumatlarını al
-        const { data: userData, error: userError } = await supabase
-            .from("users")
-            .select("*")
-            .eq("id", user.id)
-            .single();
-
-        if (userError) {
-            console.error("Users fetch error:", userError.message);
-        }
-
-        // Profiles məlumatlarını al
-        const { data: profileData, error: profileError } = await supabase
+        const { data, error } = await supabase
             .from("profiles")
-            .select("*")
+            .select(`
+      *,
+      user:users(name, surname, email, phone, age, gender)
+    `)
             .eq("user_id", user.id)
-            .single();
+            .maybeSingle();
 
-        if (profileError && profileError.code !== "PGRST116") { // "no rows" error ignored
-            console.error("Profiles fetch error:", profileError.message);
+        if (error) {
+            console.error(error);
+        } else if (!data) {
+            const { data: newProfile, error: createError } = await supabase
+                .from("profiles")
+                .insert({
+                    user_id: user.id,
+                    bio: "", // Default empty bio
+                    spotify_link: null,
+                    letterboxd_link: null,
+                    communities: [], // Default empty communities
+                })
+                .select(`
+        *,
+        user:users(name, surname, email, phone, age, gender)
+      `)
+                .maybeSingle();
+
+            if (createError) console.error(createError);
+            else setProfile(newProfile);
+        } else {
+            setProfile(data);
         }
-
-        setProfile({
-            first_name: userData?.name || "",
-            last_name: userData?.surname || "",
-            email: userData?.email || "",
-            country: profileData?.country || "Azərbaycan",
-            city: profileData?.city || "",
-            university: profileData?.university || "",
-            faculty: profileData?.faculty || "",
-            school: profileData?.school || "",
-            work: profileData?.work || "",
-            field: profileData?.field || "",
-            interests: profileData?.interests || [],
-            social_links: profileData?.social_links || { linkedin: "", instagram: "", facebook: "" },
-        });
-
         setLoading(false);
     }
 
