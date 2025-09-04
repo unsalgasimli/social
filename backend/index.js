@@ -11,8 +11,8 @@ import jwt from "jsonwebtoken";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import { createClient } from "@supabase/supabase-js";
-import profileRouter from "./routes/profile.js"; // Profile routes
-import authRouter from "./routes/auth.js"; // Auth routes
+import profileRouter from "./api/profile.js"; // Profile routes
+import authRouter from "./api/auth.js"; // Auth routes
 
 dotenv.config();
 
@@ -72,7 +72,7 @@ app.use((req, res, next) => {
 // Initialize Supabase client
 export const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
-// Mount routes
+
 app.use("/api/profile", profileRouter);
 app.use("/api/auth", authRouter);
 
