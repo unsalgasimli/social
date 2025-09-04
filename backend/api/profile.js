@@ -5,7 +5,7 @@
 
 import express from "express";
 import { supabase } from "../lib/supabaseClient.js";
-import { verifyJWT } from "../middleware/auth.js";
+import { verifyJWT } from "./auth.js";
 
 const router = express.Router();
 
