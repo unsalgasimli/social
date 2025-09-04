@@ -13,9 +13,9 @@ app.use(express.json());
 
 app.get("/", (req, res) => res.send("✅ API is running"));
 
-app.use("/api/auth", authRoutes);
-app.use("/api/profile", profileRoutes);
-app.use("/api/posts", postRoutes);
-app.use("/api/communities", communityRoutes);
+app.use("/routes/auth", authRoutes);
+app.use("/routes/profile", profileRoutes);
+app.use("/routes/posts", postRoutes);
+app.use("/routes/communities", communityRoutes);
 
 app.listen(PORT, () => console.log(`🚀 Server running at http://localhost:${PORT}`));
