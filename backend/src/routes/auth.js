@@ -1,8 +1,8 @@
 import { Router } from "express";
-import supabase from "../supabase";
+import supabase from "../supabase.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { JWT_SECRET } from "../config";
+import { JWT_SECRET } from "../config.js";
 
 const router = Router();
 

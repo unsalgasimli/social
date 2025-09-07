@@ -1,10 +1,10 @@
 import express from "express";
 import cors from "cors";
-import { PORT, FRONTEND_URL } from "./config";
-import authRoutes from "./routes/auth";
-import profileRoutes from "./routes/profile";
-import postRoutes from "./routes/posts";
-import communityRoutes from "./routes/communities";
+import { PORT, FRONTEND_URL } from "./config.js";
+import authRoutes from "./routes/auth.js";
+import profileRoutes from "./routes/profile.js";
+import postRoutes from "./routes/posts.js";
+import communityRoutes from "./routes/communities.js";
 
 const app = express();
 
@@ -13,9 +13,9 @@ app.use(express.json());
 
 app.get("/", (req, res) => res.send("✅ API is running"));
 
-app.use("/routes/auth", authRoutes);
-app.use("/routes/profile", profileRoutes);
-app.use("/routes/posts", postRoutes);
-app.use("/routes/communities", communityRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/profile", profileRoutes);
+app.use("/api/posts", postRoutes);
+app.use("/api/communities", communityRoutes);
 
 app.listen(PORT, () => console.log(`🚀 Server running at http://localhost:${PORT}`));
