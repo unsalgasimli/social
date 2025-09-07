@@ -1,11 +1,11 @@
 import { Router } from "express";
 import supabase from "../supabase.js";
-import { authenticate, AuthRequest } from "../middleware/auth";
+import { authenticate } from "../middleware/auth.js";  // no type import
 
 const router = Router();
 
 // Get own profile
-router.get("/", authenticate, async (req: AuthRequest, res) => {
+router.get("/", authenticate, async (req, res) => {
     const { id } = req.user;
 
     const { data, error } = await supabase
@@ -19,7 +19,7 @@ router.get("/", authenticate, async (req: AuthRequest, res) => {
 });
 
 // Update profile
-router.put("/", authenticate, async (req: AuthRequest, res) => {
+router.put("/", authenticate, async (req, res) => {
     const { id } = req.user;
     const updates = req.body;
 
