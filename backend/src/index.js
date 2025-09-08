@@ -1,43 +1,37 @@
-import express from "express";
-import cors from "cors";
-import { PORT, ALLOWED_ORIGINS } from "./config.js";
+// vite.config.js
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 
-import authRoutes from "./routes/auth.js";
-import profileRoutes from "./routes/profile.js";
-import postRoutes from "./routes/posts.js";
-import communityRoutes from "./routes/communities.js";
-
-const app = express();
-
-// ✅ Improved CORS setup
-app.use(
-    cors({
-        origin: (origin, callback) => {
-            console.log("CORS origin:", origin); // for debugging
-            if (!origin) return callback(null, true); // allow server-to-server or curl requests
-            if (ALLOWED_ORIGINS.includes(origin)) {
-                return callback(null, true);
-            }
-            return callback(new Error("CORS not allowed: " + origin));
+// https://vitejs.dev/config/
+export default defineConfig({
+    plugins: [react()],
+    root: ".", // Project root is the frontend folder
+    base: "./", // Relative paths for assets
+    envPrefix: "VITE_", // Restrict environment variables to VITE_ prefix
+    server: {
+        port: 5173, // Default Vite port
+        host: true, // Allow access from network (useful for testing)
+        proxy: {
+            "/api": {
+                target: "http://localhost:5000", // Backend URL for development
+                changeOrigin: true,
+                secure: false, // Disable SSL verification for local backend
+                rewrite: (path) => path.replace(/^\/api/, "/api"), // Preserve /api prefix
+            },
         },
-        credentials: true,
-        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // allow preflight
-        allowedHeaders: ["Content-Type", "Authorization"],     // required for JWT auth
-    })
-);
-
-// Handle preflight requests explicitly
-app.options("*", cors());
-
-app.use(express.json());
-
-// Health check
-app.get("/", (req, res) => res.send("✅ API is running"));
-
-// Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/profile", profileRoutes);
-app.use("/api/posts", postRoutes);
-app.use("/api/communities", communityRoutes);
-
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+    },
+    build: {
+        outDir: "dist", // Output directory
+        emptyOutDir: true, // Clear output directory before building
+        sourcemap: true, // Generate sourcemaps for debugging
+        minify: "esbuild", // Use esbuild for faster minification
+        rollupOptions: {
+            output: {
+                manualChunks: {
+                    // Split vendor libraries into separate chunks for better caching
+                    vendor: ["react", "react-dom", "react-router-dom", "axios"],
+                },
+            },
+        },
+    },
+});
