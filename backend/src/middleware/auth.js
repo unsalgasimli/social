@@ -1,3 +1,4 @@
+// src/routes/auth.js
 import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -13,22 +14,23 @@ router.post("/register", async (req, res) => {
     try {
         const { name, surname, email, phone, age, gender, password } = req.body;
 
-        // Basic validation
+        // Validation
         if (!name || !surname || !email || !password) {
             return res.status(400).json({ error: "Ad, soyad, email və şifrə tələb olunur" });
         }
 
-        // Check if email exists
-        const { data: existingUser, error: checkError } = await supabase
+        // Check if user already exists
+        const { data: existingUser, error: fetchError } = await supabase
             .from("users")
             .select("id")
             .eq("email", email)
-            .single();
+            .maybeSingle();
 
-        if (checkError && checkError.code !== "PGRST116") {
-            console.error("Supabase error checking email:", checkError.message);
+        if (fetchError) {
+            console.error("Supabase fetch error:", fetchError);
             return res.status(500).json({ error: "Məlumat bazası xətası" });
         }
+
         if (existingUser) {
             return res.status(409).json({ error: "Bu email artıq qeydiyyatdan keçib" });
         }
@@ -39,21 +41,23 @@ router.post("/register", async (req, res) => {
         // Insert new user
         const { data: newUser, error: insertError } = await supabase
             .from("users")
-            .insert([
-                { name, surname, email, phone, age, gender, password: hashedPassword },
-            ])
-            .select("id, email, name, surname")
+            .insert([{ name, surname, email, phone, age, gender, password: hashedPassword }])
+            .select("id, name, surname, email")
             .single();
 
         if (insertError) {
-            console.error("Insert error:", insertError.message);
+            console.error("Supabase insert error:", insertError);
             return res.status(500).json({ error: "Qeydiyyat zamanı xəta baş verdi" });
         }
 
-        res.status(201).json({ message: "Qeydiyyat uğurlu oldu ✅", user: newUser });
+        return res.status(201).json({
+            message: "Qeydiyyat uğurlu oldu ✅",
+            user: newUser,
+        });
+
     } catch (err) {
-        console.error("Register route error:", err);
-        res.status(500).json({ error: "Serverdə xəta baş verdi" });
+        console.error("Register error:", err);
+        return res.status(500).json({ error: "Serverdə xəta baş verdi" });
     }
 });
 
@@ -64,46 +68,45 @@ router.post("/login", async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        // Validate
+        // Validation
         if (!email || !password) {
             return res.status(400).json({ error: "Email və şifrə tələb olunur" });
         }
 
-        // Find user by email
-        const { data: user, error: userError } = await supabase
+        // Fetch user
+        const { data: user, error: fetchError } = await supabase
             .from("users")
             .select("id, name, surname, email, password")
             .eq("email", email)
-            .single();
+            .maybeSingle();
 
-        if (userError || !user) {
+        if (fetchError || !user) {
             return res.status(401).json({ error: "Email və ya şifrə səhvdir" });
         }
 
-        // Compare password
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
+        // Check password
+        const isValid = await bcrypt.compare(password, user.password);
+        if (!isValid) {
             return res.status(401).json({ error: "Email və ya şifrə səhvdir" });
         }
 
         // Generate JWT
-        const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, {
-            expiresIn: "7d",
-        });
+        const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: "7d" });
 
-        res.json({
+        return res.json({
             message: "Daxil oldunuz ✅",
             token,
             user: {
                 id: user.id,
-                email: user.email,
                 name: user.name,
                 surname: user.surname,
+                email: user.email,
             },
         });
+
     } catch (err) {
-        console.error("Login route error:", err);
-        res.status(500).json({ error: "Serverdə xəta baş verdi" });
+        console.error("Login error:", err);
+        return res.status(500).json({ error: "Serverdə xəta baş verdi" });
     }
 });
 
