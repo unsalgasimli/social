@@ -13,22 +13,27 @@ router.post("/register", async (req, res) => {
     try {
         const { name, surname, email, phone, age, gender, password } = req.body;
 
-        if (!name || !surname || !email || !password)
-            return res.status(400).json({ error: "Name, surname, email, and password are required" });
+        if (!name || !surname || !email || !password) {
+            return res
+                .status(400)
+                .json({ error: "Name, surname, email, and password are required" });
+        }
 
         // Check if user exists
         const { data: existingUser, error: checkError } = await supabase
             .from("users")
             .select("id")
             .eq("email", email)
-            .single();
+            .maybeSingle();
 
-        if (checkError && checkError.code !== "PGRST116") {
+        if (checkError) {
             console.error("Supabase check error:", checkError.message);
             return res.status(500).json({ error: "Database error" });
         }
 
-        if (existingUser) return res.status(409).json({ error: "Email already registered" });
+        if (existingUser) {
+            return res.status(409).json({ error: "Email already registered" });
+        }
 
         // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -46,9 +51,17 @@ router.post("/register", async (req, res) => {
         }
 
         // Generate JWT
-        const token = jwt.sign({ id: newUser.id, email: newUser.email }, JWT_SECRET, { expiresIn: "7d" });
+        const token = jwt.sign(
+            { id: newUser.id, email: newUser.email },
+            JWT_SECRET,
+            { expiresIn: "7d" }
+        );
 
-        res.status(201).json({ message: "Registration successful ✅", token, user: newUser });
+        res.status(201).json({
+            message: "Registration successful ✅",
+            token,
+            user: newUser,
+        });
     } catch (err) {
         console.error("Register route error:", err);
         res.status(500).json({ error: "Server error" });
@@ -61,20 +74,31 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
     try {
         const { email, password } = req.body;
-        if (!email || !password) return res.status(400).json({ error: "Email and password required" });
+        if (!email || !password)
+            return res.status(400).json({ error: "Email and password required" });
 
         const { data: user, error: userError } = await supabase
             .from("users")
             .select("id, name, surname, email, password")
             .eq("email", email)
-            .single();
+            .maybeSingle(); // <-- returns null if no rows found
 
-        if (userError || !user) return res.status(401).json({ error: "Invalid credentials" });
+        if (userError) {
+            console.error("Supabase login error:", userError.message);
+            return res.status(500).json({ error: "Database error" });
+        }
+
+        if (!user) {
+            return res.status(401).json({ error: "Invalid credentials" });
+        }
 
         const validPassword = await bcrypt.compare(password, user.password);
-        if (!validPassword) return res.status(401).json({ error: "Invalid credentials" });
+        if (!validPassword)
+            return res.status(401).json({ error: "Invalid credentials" });
 
-        const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: "7d" });
+        const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, {
+            expiresIn: "7d",
+        });
 
         res.json({
             message: "Login successful ✅",

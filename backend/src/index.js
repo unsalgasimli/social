@@ -27,16 +27,17 @@ app.use(
 // ✅ Handle preflight OPTIONS requests
 app.options("*", cors());
 
-// Body parser
+// ✅ Body parser
 app.use(express.json());
 
-// Health check
+// ✅ Health check
 app.get("/", (req, res) => res.send("✅ API is running"));
 
-// Routes
+// ✅ Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/communities", communityRoutes);
 
+// ✅ Start server
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
