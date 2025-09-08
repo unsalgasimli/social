@@ -1,6 +1,6 @@
-// src/lib/api.js
 import axios from "axios";
-import { API_URL } from "./config";
+
+const API_URL = import.meta.env.VITE_API_BASE || "https://social-dd2r.onrender.com";
 
 const api = axios.create({
     baseURL: API_URL,
@@ -8,14 +8,14 @@ const api = axios.create({
     timeout: 10000,
 });
 
-// 🔒 Request interceptor → attach token if available
+// attach token if exists
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem("token");
     if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
 });
 
-// ❌ Response interceptor → handle unauthorized
+// handle unauthorized
 api.interceptors.response.use(
     (res) => res,
     (err) => {

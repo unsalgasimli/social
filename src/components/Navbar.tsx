@@ -11,7 +11,8 @@ import {
     FiPlus,
     FiSearch,
 } from "react-icons/fi";
-import { supabase } from "../lib/supabaseClient";
+import { supabase } from "../lib/supabase";
+
 
 // Types
 type UserLike = {

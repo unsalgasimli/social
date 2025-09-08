@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { supabase } from "../lib/supabaseClient";
+import { supabase } from "../lib/supabase.js";
 import { FiLogOut, FiThumbsUp, FiThumbsDown, FiPlus } from "react-icons/fi";
 import { useAuth } from "../context/AuthContext";
 

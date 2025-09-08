@@ -3,7 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import ProfileSidebar from "../components/ProfileSidebar";
 import ProfileMain from "../components/ProfileMain";
 import ProfileRightSidebar from "../components/ProfileRightSidebar";
-import { supabase } from "../lib/supabaseClient";
+import { supabase } from "../lib/supabase.js";
 
 export default function ProfilePage() {
     const { user, logout } = useAuth();
