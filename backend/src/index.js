@@ -30,7 +30,7 @@ app.options("*", cors());
 // Body parser
 app.use(express.json());
 
-// Health check
+
 app.get("/", (req, res) => res.send("✅ API is running"));
 
 // Routes (all relative paths!)
