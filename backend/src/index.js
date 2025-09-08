@@ -9,19 +9,25 @@ import communityRoutes from "./routes/communities.js";
 
 const app = express();
 
-// ✅ CORS setup to allow Vercel + localhost:5173
+// ✅ Improved CORS setup
 app.use(
     cors({
         origin: (origin, callback) => {
-            if (!origin || ALLOWED_ORIGINS.includes(origin)) {
-                callback(null, true);
-            } else {
-                callback(new Error("CORS not allowed: " + origin));
+            console.log("CORS origin:", origin); // for debugging
+            if (!origin) return callback(null, true); // allow server-to-server or curl requests
+            if (ALLOWED_ORIGINS.includes(origin)) {
+                return callback(null, true);
             }
+            return callback(new Error("CORS not allowed: " + origin));
         },
         credentials: true,
+        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // allow preflight
+        allowedHeaders: ["Content-Type", "Authorization"],     // required for JWT auth
     })
 );
+
+// Handle preflight requests explicitly
+app.options("*", cors());
 
 app.use(express.json());
 
