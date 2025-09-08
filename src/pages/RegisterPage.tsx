@@ -1,7 +1,7 @@
     import { useNavigate } from "react-router-dom";
     import { useState } from "react";
     import { FaUser, FaEnvelope, FaPhone, FaCalendarAlt, FaVenusMars, FaLock } from "react-icons/fa";
-    import api from "../lib/api";
+    import api from "../lib/api.js";
 
     function InputField({ label, icon: Icon, type, name, value, onChange, placeholder, required = true }) {
         return (

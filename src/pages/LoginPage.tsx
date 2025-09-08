@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { FaEnvelope, FaLock } from "react-icons/fa";
-import api from "../lib/api";
+import api from "../lib/api.js";
 import { useAuth } from "../context/AuthContext";
 
 function InputField({
