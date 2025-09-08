@@ -13,8 +13,8 @@ const app = express();
 app.use(
     cors({
         origin: (origin, callback) => {
-            console.log("CORS origin:", origin); // debug
-            if (!origin) return callback(null, true); // allow server-to-server or curl
+            console.log("CORS origin:", origin);
+            if (!origin) return callback(null, true); // allow server-to-server requests
             if (ALLOWED_ORIGINS.includes(origin)) return callback(null, true);
             return callback(new Error("CORS not allowed: " + origin));
         },
@@ -27,17 +27,17 @@ app.use(
 // ✅ Handle preflight OPTIONS requests
 app.options("*", cors());
 
-// ✅ Body parser
+// Body parser
 app.use(express.json());
 
-// ✅ Health check
+// Health check
 app.get("/", (req, res) => res.send("✅ API is running"));
 
-// ✅ Routes
+// Routes (all relative paths!)
 app.use("/api/auth", authRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/communities", communityRoutes);
 
-// ✅ Start server
+// Start server
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
